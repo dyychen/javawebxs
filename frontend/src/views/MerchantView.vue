@@ -2,6 +2,7 @@
 import { onMounted, ref, watch } from 'vue'
 
 import { api, statusText } from '../api.js'
+import { Plus } from '@lucide/vue'
 
 const props = defineProps({
   tab: { type: String, default: 'dishes' },
@@ -152,7 +153,7 @@ watch(() => props.tab, (tab) => {
             <option v-for="w in windows" :key="w.id" :value="w.id">{{ w.name }}（{{ w.location }}）</option>
           </select>
         </div>
-        <button class="btn btn-primary" @click="openCreate">+ 新增菜品</button>
+        <button class="btn btn-primary" @click="openCreate"><Plus :size="15" />新增菜品</button>
       </div>
 
       <div class="card" style="padding: 0; overflow: hidden">

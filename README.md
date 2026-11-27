@@ -174,14 +174,6 @@ nohup java -jar canteen.jar > canteen.log 2>&1 &
 4. 建议前置 Nginx 做反向代理与静态资源缓存；
 5. 用 `nohup` 或 systemd 保证进程常驻。
 
-演示账号：
-
-| 角色 | 账号 | 密码 |
-| --- | --- | --- |
-| 学生 | student1 | 123456 |
-| 商家 | merchant1 | 123456 |
-| 管理员 | admin | admin123 |
-
 前端开发调试（可选）：
 
 ```bash

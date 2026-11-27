@@ -2,6 +2,7 @@
 import { onMounted, ref, watch } from 'vue'
 
 import { api, statusText } from '../api.js'
+import { Download } from '@lucide/vue'
 
 const props = defineProps({
   tab: { type: String, default: 'dashboard' },
@@ -279,7 +280,7 @@ watch(() => props.tab, (tab) => {
       <div class="toolbar">
         <span class="muted">共 {{ orders.length }} 条订单</span>
         <span style="flex: 1"></span>
-        <button class="btn btn-teal" @click="exportCsv">导出 CSV</button>
+        <button class="btn btn-teal" @click="exportCsv"><Download :size="15" />导出 CSV</button>
       </div>
 
       <div class="card" style="padding: 0; overflow: hidden">

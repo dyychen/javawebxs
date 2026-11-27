@@ -2,6 +2,15 @@
 import { computed, ref } from 'vue'
 
 import { api } from './api.js'
+import {
+  ClipboardCheck,
+  LayoutDashboard,
+  LogOut,
+  ReceiptText,
+  Store,
+  UserRound,
+  UtensilsCrossed,
+} from '@lucide/vue'
 import LoginView from './views/LoginView.vue'
 import StudentView from './views/StudentView.vue'
 import MerchantView from './views/MerchantView.vue'
@@ -12,18 +21,18 @@ const activeTab = ref('')
 
 const navMap = {
   student: [
-    { key: 'menu', label: '在线点餐', icon: '🍱' },
-    { key: 'orders', label: '我的订单', icon: '🧾' },
+    { key: 'menu', label: '在线点餐', icon: UtensilsCrossed },
+    { key: 'orders', label: '我的订单', icon: ReceiptText },
   ],
   merchant: [
-    { key: 'dishes', label: '菜品管理', icon: '🍜' },
-    { key: 'orders', label: '订单核验', icon: '✅' },
+    { key: 'dishes', label: '菜品管理', icon: Store },
+    { key: 'orders', label: '订单核验', icon: ClipboardCheck },
   ],
   admin: [
-    { key: 'dashboard', label: '数据概览', icon: '📊' },
-    { key: 'canteen', label: '窗口与分类', icon: '🏬' },
-    { key: 'users', label: '用户管理', icon: '👥' },
-    { key: 'orders', label: '订单记录', icon: '🧾' },
+    { key: 'dashboard', label: '数据概览', icon: LayoutDashboard },
+    { key: 'canteen', label: '窗口与分类', icon: Store },
+    { key: 'users', label: '用户管理', icon: UserRound },
+    { key: 'orders', label: '订单记录', icon: ReceiptText },
   ],
 }
 
@@ -52,7 +61,7 @@ function logout() {
   <div v-else class="app-shell">
     <aside class="sidebar">
       <div class="brand">
-        <span class="logo">🍚</span>
+        <span class="logo"><UtensilsCrossed :size="18" /></span>
         <span>食堂订餐系统</span>
       </div>
       <button
@@ -62,7 +71,7 @@ function logout() {
         :class="{ active: activeTab === item.key }"
         @click="activeTab = item.key"
       >
-        <span>{{ item.icon }}</span>
+        <component :is="item.icon" :size="17" :stroke-width="1.9" />
         <span>{{ item.label }}</span>
       </button>
       <div class="sidebar-footer">
@@ -79,7 +88,7 @@ function logout() {
         <div class="user-chip">
           <span class="role-tag">{{ user.role === 'admin' ? '管理员' : user.role === 'merchant' ? '商家' : '学生' }}</span>
           <span>{{ user.realName || user.username }}</span>
-          <button class="btn btn-sm" @click="logout">退出</button>
+          <button class="btn btn-sm" @click="logout"><LogOut :size="14" />退出</button>
         </div>
       </div>
 

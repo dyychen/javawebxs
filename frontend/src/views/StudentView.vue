@@ -2,6 +2,7 @@
 import { computed, onMounted, ref, watch } from 'vue'
 
 import { api, statusText } from '../api.js'
+import { Search, ShoppingBasket } from '@lucide/vue'
 
 const props = defineProps({
   tab: { type: String, default: 'menu' },
@@ -197,7 +198,7 @@ watch(() => props.tab, (tab) => {
         <label>关键字</label>
         <input v-model="keyword" class="input" placeholder="搜索菜品" @keyup.enter="loadDishes" />
       </div>
-      <button class="btn" @click="loadDishes">搜索</button>
+      <button class="btn" @click="loadDishes"><Search :size="15" />搜索</button>
     </div>
 
     <div class="grid-dishes">
@@ -222,7 +223,7 @@ watch(() => props.tab, (tab) => {
     <div class="card mt" v-if="cart.length">
       <div class="flex between">
         <h3 style="margin: 0">购物车</h3>
-        <button class="btn btn-sm" @click="api.clearCart().then(loadCart)">清空</button>
+        <button class="btn btn-sm" @click="api.clearCart().then(loadCart)"><ShoppingBasket :size="14" />清空</button>
       </div>
       <table class="table mt">
         <thead>
