@@ -70,7 +70,6 @@ public class OrderService {
             order.setWindowId(windowId);
             order.setAmount(amount);
             order.setStatus("PENDING_PAY");
-            order.setPickupCode(generatePickupCode());
             order.setPickupTime(pickupTime);
             order.setRemark(remark);
             orderMapper.insert(order);
@@ -101,7 +100,7 @@ public class OrderService {
         if (!"PENDING_PAY".equals(order.getStatus())) {
             throw new IllegalArgumentException("订单状态不是待支付，无法支付");
         }
-        orderMapper.updatePay(orderId);
+        orderMapper.updatePay(orderId, generatePickupCode());
     }
 
     /** 取消订单（仅待支付可取消），并回补库存 */

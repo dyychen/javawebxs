@@ -50,7 +50,7 @@
     </update>
 
     <update id="updatePay">
-        UPDATE `order` SET status = 'PAID', pay_time = NOW() WHERE id = #{id}
+        UPDATE `order` SET status = 'PAID', pay_time = NOW(), pickup_code = #{pickupCode} WHERE id = #{id}
     </update>
 
     <insert id="insertItem" parameterType="OrderItem" useGeneratedKeys="true" keyProperty="id">

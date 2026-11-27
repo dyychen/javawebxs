@@ -110,7 +110,7 @@ async function submitOrder() {
   loading.value = true
   try {
     const created = await api.createOrder(pickupTime.value, remark.value)
-    const text = created.map(o => `订单 ${o.orderNo}，取餐码 ${o.pickupCode}`).join('；')
+    const text = created.map(o => `订单 ${o.orderNo}`).join('；')
     infoMsg.value = `下单成功！${text}`
     remark.value = ''
     await loadCart()
@@ -295,8 +295,8 @@ watch(() => props.tab, (tab) => {
         </tbody>
       </table>
       <div class="flex between mt">
-        <span class="muted" v-if="order.pickupCode">取餐码：<strong>{{ order.pickupCode }}</strong></span>
-        <span class="muted" v-else>订单已取消</span>
+        <span class="muted" v-if="['PAID', 'PICKED'].includes(order.status)">取餐码：<strong>{{ order.pickupCode }}</strong></span>
+        <span class="muted" v-else>{{ order.status === 'CANCELLED' ? '订单已取消' : '待支付' }}</span>
         <span>实付：<strong class="dish-price">¥{{ Number(order.amount).toFixed(2) }}</strong></span>
       </div>
     </div>

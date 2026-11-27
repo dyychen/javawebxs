@@ -23,7 +23,7 @@ public interface OrderMapper {
 
     int updateStatus(@Param("id") Integer id, @Param("status") String status);
 
-    int updatePay(@Param("id") Integer id);
+    int updatePay(@Param("id") Integer id, @Param("pickupCode") String pickupCode);
 
     int insertItem(OrderItem item);
 
