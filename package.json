@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "dev:frontend": "npm --prefix frontend run dev",
+    "dev": "npm --prefix frontend run dev",
     "build": "npm --prefix frontend run build"
   }
 }
