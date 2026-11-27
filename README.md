@@ -141,6 +141,39 @@ mvn spring-boot:run
 mvn clean install -DskipTests
 ```
 
+## 部署
+
+### 方式一：可执行 JAR（推荐，内嵌 Tomcat）
+```bash
+mvn clean package -DskipTests
+java -jar target/canteen.jar
+# 或指定环境变量
+DB_URL="jdbc:mysql://ip:3306/canteen?..." DB_USERNAME=root DB_PASSWORD=xxx SERVER_PORT=8080 java -jar target/canteen.jar
+```
+启动后访问 http://localhost:8080。
+
+服务器后台运行示例：
+```bash
+nohup java -jar canteen.jar > canteen.log 2>&1 &
+```
+
+### 方式二：IDEA 中运行 / 打包
+- 直接运行 `CanteenApplication.main()`；
+- 或 Maven 面板执行 `package`，在 `target/canteen.jar` 得到可部署产物。
+
+### 方式三：外部 Tomcat（WAR，可选）
+本项目默认打成 JAR、使用内嵌 Tomcat。如课程要求部署到外部 Tomcat：
+1. `pom.xml` 中把 `<packaging>jar</packaging>` 改为 `war`；
+2. 启动类继承 `SpringBootServletInitializer` 并重写 `configure`；
+3. `mvn clean package` 生成 WAR，放入 Tomcat 的 `webapps` 目录启动。
+
+### 云服务器部署要点
+1. 服务器安装 JDK 17 与 MySQL，导入 `docs/schema.sql`；
+2. 用环境变量注入数据库连接与端口（不要把密码写进仓库）；
+3. 安全组/防火墙放行项目端口（默认 8080）；
+4. 建议前置 Nginx 做反向代理与静态资源缓存；
+5. 用 `nohup` 或 systemd 保证进程常驻。
+
 演示账号：
 
 | 角色 | 账号 | 密码 |
