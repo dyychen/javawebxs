@@ -33,7 +33,7 @@ export const api = {
   users: () => request('/api/users'),
 
   windows: () => request('/api/windows'),
-  windowsByMerchant: (merchantId) => request(`/api/windows/merchant?merchantId=${merchantId}`),
+  windowsByMerchant: () => request('/api/windows/merchant'),
   createWindow: (payload) => post('/api/windows', payload),
   updateWindow: (id, payload) => put(`/api/windows/${id}`, payload),
   deleteWindow: (id) => del(`/api/windows/${id}`),
@@ -56,24 +56,19 @@ export const api = {
   changeStock: (id, delta) => post(`/api/dishes/${id}/stock?delta=${delta}`),
   topSales: (limit = 10) => request(`/api/dishes/rank/top?limit=${limit}`),
 
-  cart: (userId) => request(`/api/cart?userId=${userId}`),
-  addToCart: (userId, dishId, quantity = 1) => post('/api/cart', { userId, dishId, quantity }),
+  cart: () => request('/api/cart'),
+  addToCart: (dishId, quantity = 1) => post('/api/cart', { dishId, quantity }),
   updateCart: (id, quantity) => put(`/api/cart/${id}?quantity=${quantity}`),
   removeCart: (id) => del(`/api/cart/${id}`),
-  clearCart: (userId) => del(`/api/cart?userId=${userId}`),
-  cartTotal: (userId) => request(`/api/cart/total?userId=${userId}`),
+  clearCart: () => del('/api/cart'),
+  cartTotal: () => request('/api/cart/total'),
 
-  createOrder: (userId, pickupTime, remark) => post('/api/orders', { userId, pickupTime, remark }),
+  createOrder: (pickupTime, remark) => post('/api/orders', { pickupTime, remark }),
   payOrder: (id) => post(`/api/orders/${id}/pay`),
   cancelOrder: (id) => post(`/api/orders/${id}/cancel`),
   verifyOrder: (id, pickupCode) => post(`/api/orders/${id}/verify`, { pickupCode }),
-  myOrders: (userId) => request(`/api/orders/my?userId=${userId}`),
-  orders: (role, userId) => {
-    const query = new URLSearchParams()
-    if (role) query.set('role', role)
-    if (userId) query.set('userId', userId)
-    return request(`/api/orders?${query.toString()}`)
-  },
+  myOrders: () => request('/api/orders/my'),
+  orders: () => request('/api/orders'),
   orderDetail: (id) => request(`/api/orders/${id}`),
 
   stats: () => request('/api/stats/overview'),

@@ -1,6 +1,7 @@
 package com.example.canteen.controller;
 
 import com.example.canteen.common.Result;
+import com.example.canteen.common.AccessDeniedException;
 import com.example.canteen.common.UserSession;
 import com.example.canteen.entity.Order;
 import com.example.canteen.entity.User;
@@ -11,7 +12,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -51,9 +51,9 @@ public class OrderController {
     /** 模拟支付 */
     @PostMapping("/{id}/pay")
     public Result<Void> pay(@PathVariable Integer id, HttpServletRequest request) {
-        if (userSession.getUser(request) == null) {
-            return Result.fail(401, "请先登录");
-        }
+        User current = userSession.requireUser(request);
+        Order order = orderService.detail(id);
+        requireOrderAccess(order, current, "支付");
         orderService.pay(id);
         return Result.ok();
     }
@@ -61,9 +61,9 @@ public class OrderController {
     /** 取消订单 */
     @PostMapping("/{id}/cancel")
     public Result<Void> cancel(@PathVariable Integer id, HttpServletRequest request) {
-        if (userSession.getUser(request) == null) {
-            return Result.fail(401, "请先登录");
-        }
+        User current = userSession.requireUser(request);
+        Order order = orderService.detail(id);
+        requireOrderAccess(order, current, "取消");
         orderService.cancel(id);
         return Result.ok();
     }
@@ -72,8 +72,16 @@ public class OrderController {
     @PostMapping("/{id}/verify")
     public Result<Void> verify(@PathVariable Integer id, @RequestBody Map<String, String> body,
                                HttpServletRequest request) {
-        if (userSession.getUser(request) == null) {
-            return Result.fail(401, "请先登录");
+        User current = userSession.requireUser(request);
+        if ("merchant".equals(current.getRole())) {
+            List<Order> merchantOrders = orderService.listForMerchant(current.getId());
+            boolean ownsWindow = merchantOrders.stream()
+                    .anyMatch(item -> item.getId().equals(id));
+            if (!ownsWindow) {
+                throw new AccessDeniedException("无权核验该窗口的订单");
+            }
+        } else if (!"admin".equals(current.getRole())) {
+            throw new AccessDeniedException("仅商家或管理员可核验订单");
         }
         orderService.verifyPickup(id, body.get("pickupCode"));
         return Result.ok();
@@ -81,8 +89,7 @@ public class OrderController {
 
     /** 当前学生的订单 */
     @GetMapping("/my")
-    public Result<List<Order>> my(@RequestParam(required = false) Integer userId,
-                                  HttpServletRequest request) {
+    public Result<List<Order>> my(HttpServletRequest request) {
         User current = userSession.getUser(request);
         if (current == null) {
             return Result.fail(401, "请先登录");
@@ -94,29 +101,46 @@ public class OrderController {
      * 管理端订单查询：管理员看全部，商家看自己窗口的订单
      */
     @GetMapping
-    public Result<List<Order>> list(@RequestParam(required = false) String role,
-                                    @RequestParam(required = false) Integer userId,
-                                    HttpServletRequest request) {
+    public Result<List<Order>> list(HttpServletRequest request) {
         User current = userSession.getUser(request);
         if (current == null) {
             return Result.fail(401, "请先登录");
         }
-        String effectiveRole = role != null ? role : (current != null ? current.getRole() : null);
-        Integer effectiveUserId = userId != null ? userId : (current != null ? current.getId() : null);
-        if ("admin".equals(effectiveRole)) {
+        if ("admin".equals(current.getRole())) {
             return Result.ok(orderService.listAll());
         }
-        if ("merchant".equals(effectiveRole) && effectiveUserId != null) {
-            return Result.ok(orderService.listForMerchant(effectiveUserId));
+        if ("merchant".equals(current.getRole())) {
+            return Result.ok(orderService.listForMerchant(current.getId()));
         }
-        if (effectiveUserId != null) {
-            return Result.ok(orderService.listForUser(effectiveUserId));
-        }
-        return Result.ok(orderService.listAll());
+        return Result.ok(orderService.listForUser(current.getId()));
     }
 
     @GetMapping("/{id}")
-    public Result<Order> detail(@PathVariable Integer id) {
-        return Result.ok(orderService.detail(id));
+    public Result<Order> detail(@PathVariable Integer id, HttpServletRequest request) {
+        User current = userSession.requireUser(request);
+        Order order = orderService.detail(id);
+        requireOrderAccess(order, current, "查看");
+        return Result.ok(order);
+    }
+
+    private void requireOrderAccess(Order order, User current, String action) {
+        if (order == null) {
+            throw new IllegalArgumentException("订单不存在");
+        }
+        if ("admin".equals(current.getRole())) {
+            return;
+        }
+        if (current.getId().equals(order.getUserId())) {
+            return;
+        }
+        if ("merchant".equals(current.getRole())) {
+            List<Order> merchantOrders = orderService.listForMerchant(current.getId());
+            boolean ownsWindow = merchantOrders.stream()
+                .anyMatch(item -> item.getId().equals(order.getId()));
+            if (ownsWindow) {
+                return;
+            }
+        }
+        throw new AccessDeniedException("无权" + action + "该订单");
     }
 }

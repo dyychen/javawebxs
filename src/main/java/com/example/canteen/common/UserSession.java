@@ -14,7 +14,7 @@ public class UserSession {
     public static final String ATTRIBUTE = "loginUser";
 
     /**
-     * 获取当前登录用户，未登录返回 null
+     * 获取当前登录用户，未登录返回 null。
      */
     public User getUser(HttpServletRequest request) {
         HttpSession session = request.getSession(false);
@@ -23,6 +23,30 @@ public class UserSession {
         }
         Object value = session.getAttribute(ATTRIBUTE);
         return value instanceof User ? (User) value : null;
+    }
+
+    /**
+     * 获取当前登录用户，未登录时抛出异常。
+     */
+    public User requireUser(HttpServletRequest request) {
+        User user = getUser(request);
+        if (user == null) {
+            throw new IllegalStateException("请先登录");
+        }
+        return user;
+    }
+
+    /**
+     * 校验当前登录用户是否具有指定角色。
+     */
+    public void requireRole(HttpServletRequest request, String... roles) {
+        User user = requireUser(request);
+        for (String role : roles) {
+            if (role.equals(user.getRole())) {
+                return;
+            }
+        }
+        throw new AccessDeniedException("无权访问");
     }
 
     /**

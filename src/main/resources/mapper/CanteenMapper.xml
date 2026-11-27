@@ -50,7 +50,10 @@
     </delete>
 
     <select id="selectCategories" resultType="Category">
-        SELECT * FROM category ORDER BY id
+        SELECT c.*,
+               (SELECT COUNT(*) FROM dish d WHERE d.category_id = c.id) AS dishCount
+        FROM category c
+        ORDER BY c.id
     </select>
 
     <insert id="insertCategory" parameterType="Category" useGeneratedKeys="true" keyProperty="id">

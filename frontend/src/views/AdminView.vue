@@ -53,7 +53,7 @@ async function loadUsers() {
 
 async function loadOrders() {
   try {
-    orders.value = await api.orders('admin')
+    orders.value = await api.orders()
   } catch (error) {
     errorMsg.value = error.message
   }

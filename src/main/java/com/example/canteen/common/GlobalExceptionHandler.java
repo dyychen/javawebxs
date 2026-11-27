@@ -9,6 +9,16 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @ExceptionHandler(IllegalStateException.class)
+    public Result<Void> handleUnauthorized(IllegalStateException e) {
+        return Result.fail(401, e.getMessage());
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public Result<Void> handleForbidden(AccessDeniedException e) {
+        return Result.fail(403, e.getMessage());
+    }
+
     @ExceptionHandler(IllegalArgumentException.class)
     public Result<Void> handleBadRequest(IllegalArgumentException e) {
         return Result.fail(400, e.getMessage());

@@ -27,7 +27,7 @@ function emptyForm() {
 
 async function loadAll() {
   try {
-    windows.value = await api.windowsByMerchant(props.user.id)
+    windows.value = await api.windowsByMerchant()
     categories.value = await api.categories()
     dishes.value = await api.dishes({ merchantId: props.user.id })
     if (!form.value.windowId && windows.value.length) {
@@ -40,7 +40,7 @@ async function loadAll() {
 
 async function loadOrders() {
   try {
-    orders.value = await api.orders('merchant', props.user.id)
+    orders.value = await api.orders()
   } catch (error) {
     errorMsg.value = error.message
   }

@@ -1,8 +1,10 @@
 package com.example.canteen.controller;
 
 import com.example.canteen.common.Result;
+import com.example.canteen.common.UserSession;
 import com.example.canteen.entity.Order;
 import com.example.canteen.service.OrderService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,13 +21,16 @@ import java.util.Map;
 public class StatsController {
 
     private final OrderService orderService;
+    private final UserSession userSession;
 
-    public StatsController(OrderService orderService) {
+    public StatsController(OrderService orderService, UserSession userSession) {
         this.orderService = orderService;
+        this.userSession = userSession;
     }
 
     @GetMapping("/overview")
-    public Result<Map<String, Object>> overview() {
+    public Result<Map<String, Object>> overview(HttpServletRequest request) {
+        userSession.requireRole(request, "admin", "merchant");
         return Result.ok(orderService.statistics());
     }
 
@@ -33,7 +38,8 @@ public class StatsController {
      * 导出订单 CSV
      */
     @GetMapping("/export")
-    public Result<String> export() {
+    public Result<String> export(HttpServletRequest request) {
+        userSession.requireRole(request, "admin");
         List<Order> orders = orderService.listAll();
         StringBuilder sb = new StringBuilder();
         sb.append("订单号,编号,学生,窗口,金额,状态,取餐码,预约取餐时间,下单时间\n");

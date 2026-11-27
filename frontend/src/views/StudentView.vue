@@ -59,7 +59,7 @@ async function loadDishes() {
 
 async function loadCart() {
   try {
-    cart.value = await api.cart(props.user.id)
+    cart.value = await api.cart()
   } catch (error) {
     errorMsg.value = error.message
   }
@@ -67,7 +67,7 @@ async function loadCart() {
 
 async function loadOrders() {
   try {
-    orders.value = await api.myOrders(props.user.id)
+    orders.value = await api.myOrders()
   } catch (error) {
     errorMsg.value = error.message
   }
@@ -77,7 +77,7 @@ async function addToCart(dish) {
   errorMsg.value = ''
   infoMsg.value = ''
   try {
-    await api.addToCart(props.user.id, dish.id, 1)
+    await api.addToCart(dish.id, 1)
     await loadCart()
     infoMsg.value = `已加入购物车：${dish.name}`
   } catch (error) {
@@ -108,7 +108,7 @@ async function submitOrder() {
   }
   loading.value = true
   try {
-    const created = await api.createOrder(props.user.id, pickupTime.value, remark.value)
+    const created = await api.createOrder(pickupTime.value, remark.value)
     const text = created.map(o => `订单 ${o.orderNo}，取餐码 ${o.pickupCode}`).join('；')
     infoMsg.value = `下单成功！${text}`
     remark.value = ''
@@ -222,7 +222,7 @@ watch(() => props.tab, (tab) => {
     <div class="card mt" v-if="cart.length">
       <div class="flex between">
         <h3 style="margin: 0">购物车</h3>
-        <button class="btn btn-sm" @click="api.clearCart(user.id).then(loadCart)">清空</button>
+        <button class="btn btn-sm" @click="api.clearCart().then(loadCart)">清空</button>
       </div>
       <table class="table mt">
         <thead>
