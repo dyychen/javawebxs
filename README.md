@@ -191,3 +191,10 @@ npm run dev
 ```
 
 前端开发服务器地址 http://localhost:5175，/api 会代理到 8080。
+
+## 项目文档
+
+- [文档索引](docs/README.md)
+- [校园食堂线上订餐与错峰取餐系统·项目介绍](docs/project6/项目介绍.md)
+- [校园食堂线上订餐与错峰取餐系统·系统说明](docs/project6/系统说明.md)
+- [校园食堂线上订餐与错峰取餐系统·规划书](docs/project6/规划书.md)
