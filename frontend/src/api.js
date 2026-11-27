@@ -27,6 +27,8 @@ function del(url) {
 export const api = {
   login: (username, password) => post('/api/auth/login', { username, password }),
   register: (payload) => post('/api/auth/register', payload),
+  logout: () => post('/api/auth/logout'),
+  me: () => request('/api/auth/me'),
 
   users: () => request('/api/users'),
 

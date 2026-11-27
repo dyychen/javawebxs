@@ -1,8 +1,11 @@
 package com.example.canteen.controller;
 
 import com.example.canteen.common.Result;
+import com.example.canteen.common.UserSession;
 import com.example.canteen.entity.CartItem;
+import com.example.canteen.entity.User;
 import com.example.canteen.service.CartService;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -23,12 +26,19 @@ public class CartController {
 
     private final CartService cartService;
 
-    public CartController(CartService cartService) {
+    private final UserSession userSession;
+
+    public CartController(CartService cartService, UserSession userSession) {
         this.cartService = cartService;
+        this.userSession = userSession;
     }
 
     @GetMapping
-    public Result<List<CartItem>> list(@RequestParam Integer userId) {
+    public Result<List<CartItem>> list(HttpServletRequest request) {
+        Integer userId = requireUserId(request);
+        if (userId == null) {
+            return Result.fail(401, "请先登录");
+        }
         return Result.ok(cartService.list(userId));
     }
 
@@ -36,8 +46,11 @@ public class CartController {
      * 加入购物车
      */
     @PostMapping
-    public Result<Void> add(@RequestBody Map<String, Object> body) {
-        Integer userId = Integer.valueOf(body.get("userId").toString());
+    public Result<Void> add(@RequestBody Map<String, Object> body, HttpServletRequest request) {
+        Integer userId = requireUserId(request);
+        if (userId == null) {
+            return Result.fail(401, "请先登录");
+        }
         Integer dishId = Integer.valueOf(body.get("dishId").toString());
         Integer quantity = body.get("quantity") == null ? 1 : Integer.valueOf(body.get("quantity").toString());
         cartService.add(userId, dishId, quantity);
@@ -45,25 +58,48 @@ public class CartController {
     }
 
     @PutMapping("/{id}")
-    public Result<Void> updateQuantity(@PathVariable Integer id, @RequestParam Integer quantity) {
+    public Result<Void> updateQuantity(@PathVariable Integer id, @RequestParam Integer quantity,
+                                       HttpServletRequest request) {
+        if (requireUserId(request) == null) {
+            return Result.fail(401, "请先登录");
+        }
         cartService.updateQuantity(null, id, quantity);
         return Result.ok();
     }
 
     @DeleteMapping("/{id}")
-    public Result<Void> remove(@PathVariable Integer id) {
+    public Result<Void> remove(@PathVariable Integer id, HttpServletRequest request) {
+        if (requireUserId(request) == null) {
+            return Result.fail(401, "请先登录");
+        }
         cartService.remove(null, id);
         return Result.ok();
     }
 
     @DeleteMapping
-    public Result<Void> clear(@RequestParam Integer userId) {
+    public Result<Void> clear(HttpServletRequest request) {
+        Integer userId = requireUserId(request);
+        if (userId == null) {
+            return Result.fail(401, "请先登录");
+        }
         cartService.clear(userId);
         return Result.ok();
     }
 
     @GetMapping("/total")
-    public Result<BigDecimal> total(@RequestParam Integer userId) {
+    public Result<BigDecimal> total(HttpServletRequest request) {
+        Integer userId = requireUserId(request);
+        if (userId == null) {
+            return Result.fail(401, "请先登录");
+        }
         return Result.ok(cartService.totalAmount(userId));
+    }
+
+    /**
+     * 从会话中取当前用户编号，未登录返回 null
+     */
+    private Integer requireUserId(HttpServletRequest request) {
+        User current = userSession.getUser(request);
+        return current != null ? current.getId() : null;
     }
 }

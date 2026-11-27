@@ -102,6 +102,8 @@ javawebxs/
 - 取餐码核验：订单支付后状态为 PAID，商家输入学生提供的取餐码，匹配成功才置为 PICKED，避免误取。
 - 库存安全：下单时以数据库当前库存为准二次校验，避免超卖。
 - 统计导出：GET /api/stats/overview 汇总订单数、营业收入、各状态数量与菜品销量排行；GET /api/stats/export 返回 CSV。
+- 会话管理：登录成功后用户信息写入 HttpSession（JSESSIONID Cookie），购物车、下单、支付、订单查询等接口强制要求登录，未登录统一返回 401「请先登录」，前端未登录时只显示登录页。
+- 部署友好：数据库地址、账号、密码和端口都支持环境变量覆盖（DB_URL、DB_USERNAME、DB_PASSWORD、SERVER_PORT），换机器无需改代码。
 
 ## 五、总结
 系统完整覆盖了项目六要求的五类核心功能，结构清晰、可直接运行。通过本次设计，巩固了 Spring MVC 请求映射与参数接收、MyBatis 动态 SQL 与事务、Vue 响应式数据与组件化开发等知识点，也实践了前后端分离项目的接口约定与联调过程。
@@ -122,6 +124,22 @@ mvn spring-boot:run
 ```
 
 4. 浏览器访问 http://localhost:8080。
+
+也可以不改配置文件，直接用环境变量启动（推荐给他人部署时使用）：
+
+```bash
+export DB_URL="jdbc:mysql://localhost:3306/canteen?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true&useSSL=false"
+export DB_USERNAME="root"
+export DB_PASSWORD="你的密码"
+export SERVER_PORT=8080
+mvn spring-boot:run
+```
+
+打包并安装到本地 Maven 仓库（供其他项目以依赖方式引用）：
+
+```bash
+mvn clean install -DskipTests
+```
 
 演示账号：
 

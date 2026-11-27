@@ -1,6 +1,7 @@
 <script setup>
 import { computed, ref } from 'vue'
 
+import { api } from './api.js'
 import LoginView from './views/LoginView.vue'
 import StudentView from './views/StudentView.vue'
 import MerchantView from './views/MerchantView.vue'
@@ -39,6 +40,7 @@ function onLogin(data) {
 }
 
 function logout() {
+  api.logout().catch(() => {})
   localStorage.removeItem('canteen_user')
   user.value = null
 }
