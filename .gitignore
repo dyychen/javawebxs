@@ -5,3 +5,5 @@ frontend/node_modules/
 .vscode/
 *.iml
 docs/*.txt
+# 会话交接记录，仅本地保留，不入库
+docs/HANDOFF.md
