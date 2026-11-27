@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.canteen.mapper.DishMapper">
+
+    <select id="selectList" resultType="Dish">
+        SELECT d.*, w.name AS windowName, c.name AS categoryName
+        FROM dish d
+        LEFT JOIN canteen_window w ON w.id = d.window_id
+        LEFT JOIN category c ON c.id = d.category_id
+        <where>
+            <if test="windowId != null">AND d.window_id = #{windowId}</if>
+            <if test="categoryId != null">AND d.category_id = #{categoryId}</if>
+            <if test="keyword != null and keyword != ''">
+                AND d.name LIKE CONCAT('%', #{keyword}, '%')
+            </if>
+            <if test="merchantId != null">
+                AND w.merchant_id = #{merchantId}
+            </if>
+        </where>
+        ORDER BY d.id DESC
+    </select>
+
+    <select id="selectById" resultType="Dish">
+        SELECT d.*, w.name AS windowName, c.name AS categoryName
+        FROM dish d
+        LEFT JOIN canteen_window w ON w.id = d.window_id
+        LEFT JOIN category c ON c.id = d.category_id
+        WHERE d.id = #{id}
+    </select>
+
+    <insert id="insert" parameterType="Dish" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO dish (window_id, category_id, name, price, stock, image, status, sales)
+        VALUES (#{windowId}, #{categoryId}, #{name}, #{price}, #{stock}, #{image}, #{status}, 0)
+    </insert>
+
+    <update id="update" parameterType="Dish">
+        UPDATE dish
+        <set>
+            <if test="windowId != null">window_id = #{windowId},</if>
+            <if test="categoryId != null">category_id = #{categoryId},</if>
+            <if test="name != null">name = #{name},</if>
+            <if test="price != null">price = #{price},</if>
+            <if test="stock != null">stock = #{stock},</if>
+            <if test="image != null">image = #{image},</if>
+            <if test="status != null">status = #{status},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM dish WHERE id = #{id}
+    </delete>
+
+    <update id="updateStock">
+        UPDATE dish SET stock = stock + #{delta} WHERE id = #{id}
+    </update>
+
+    <update id="increaseSales">
+        UPDATE dish SET sales = sales + #{count} WHERE id = #{id}
+    </update>
+
+    <select id="selectTopSales" resultType="Dish">
+        SELECT * FROM dish ORDER BY sales DESC LIMIT #{limit}
+    </select>
+
+</mapper>

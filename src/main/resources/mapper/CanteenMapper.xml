@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.canteen.mapper.CanteenMapper">
+
+    <select id="selectWindows" resultType="CanteenWindow">
+        SELECT w.*, u.real_name AS merchantName
+        FROM canteen_window w
+        LEFT JOIN `user` u ON u.id = w.merchant_id
+        ORDER BY w.id
+    </select>
+
+    <select id="selectWindowById" resultType="CanteenWindow">
+        SELECT w.*, u.real_name AS merchantName
+        FROM canteen_window w
+        LEFT JOIN `user` u ON u.id = w.merchant_id
+        WHERE w.id = #{id}
+    </select>
+
+    <select id="selectWindowsByMerchant" resultType="CanteenWindow">
+        SELECT w.*, u.real_name AS merchantName
+        FROM canteen_window w
+        LEFT JOIN `user` u ON u.id = w.merchant_id
+        WHERE w.merchant_id = #{merchantId}
+        ORDER BY w.id
+    </select>
+
+    <insert id="insertWindow" parameterType="CanteenWindow" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO canteen_window (name, campus, floor, location, merchant_id, status, business_hours)
+        VALUES (#{name}, #{campus}, #{floor}, #{location}, #{merchantId}, #{status}, #{businessHours})
+    </insert>
+
+    <update id="updateWindow" parameterType="CanteenWindow">
+        UPDATE canteen_window
+        <set>
+            <if test="name != null">name = #{name},</if>
+            <if test="campus != null">campus = #{campus},</if>
+            <if test="floor != null">floor = #{floor},</if>
+            <if test="location != null">location = #{location},</if>
+            <if test="merchantId != null">merchant_id = #{merchantId},</if>
+            <if test="status != null">status = #{status},</if>
+            <if test="businessHours != null">business_hours = #{businessHours},</if>
+        </set>
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteWindow">
+        DELETE FROM canteen_window WHERE id = #{id}
+    </delete>
+
+    <select id="selectCategories" resultType="Category">
+        SELECT * FROM category ORDER BY id
+    </select>
+
+    <insert id="insertCategory" parameterType="Category" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO category (name) VALUES (#{name})
+    </insert>
+
+    <delete id="deleteCategory">
+        DELETE FROM category WHERE id = #{id}
+    </delete>
+
+</mapper>

@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "https://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.canteen.mapper.OrderMapper">
+
+    <insert id="insert" parameterType="Order" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO `order` (order_no, user_id, window_id, amount, status,
+                             pickup_code, pickup_time, remark)
+        VALUES (#{orderNo}, #{userId}, #{windowId}, #{amount}, #{status},
+                #{pickupCode}, #{pickupTime}, #{remark})
+    </insert>
+
+    <select id="selectById" resultType="Order">
+        SELECT o.*, u.real_name AS userName, w.name AS windowName
+        FROM `order` o
+        LEFT JOIN `user` u ON u.id = o.user_id
+        LEFT JOIN canteen_window w ON w.id = o.window_id
+        WHERE o.id = #{id}
+    </select>
+
+    <select id="selectByUserId" resultType="Order">
+        SELECT o.*, u.real_name AS userName, w.name AS windowName
+        FROM `order` o
+        LEFT JOIN `user` u ON u.id = o.user_id
+        LEFT JOIN canteen_window w ON w.id = o.window_id
+        WHERE o.user_id = #{userId}
+        ORDER BY o.id DESC
+    </select>
+
+    <select id="selectAll" resultType="Order">
+        SELECT o.*, u.real_name AS userName, w.name AS windowName
+        FROM `order` o
+        LEFT JOIN `user` u ON u.id = o.user_id
+        LEFT JOIN canteen_window w ON w.id = o.window_id
+        ORDER BY o.id DESC
+    </select>
+
+    <select id="selectByMerchantId" resultType="Order">
+        SELECT o.*, u.real_name AS userName, w.name AS windowName
+        FROM `order` o
+        LEFT JOIN `user` u ON u.id = o.user_id
+        LEFT JOIN canteen_window w ON w.id = o.window_id
+        WHERE o.window_id IN (SELECT id FROM canteen_window WHERE merchant_id = #{merchantId})
+        ORDER BY o.id DESC
+    </select>
+
+    <update id="updateStatus">
+        UPDATE `order` SET status = #{status} WHERE id = #{id}
+    </update>
+
+    <update id="updatePay">
+        UPDATE `order` SET status = 'PAID', pay_time = NOW() WHERE id = #{id}
+    </update>
+
+    <insert id="insertItem" parameterType="OrderItem" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO order_item (order_id, dish_id, dish_name, price, quantity)
+        VALUES (#{orderId}, #{dishId}, #{dishName}, #{price}, #{quantity})
+    </insert>
+
+    <select id="selectItems" resultType="OrderItem">
+        SELECT * FROM order_item WHERE order_id = #{orderId}
+    </select>
+
+    <select id="sumPaidAmount" resultType="java.math.BigDecimal">
+        SELECT COALESCE(SUM(amount), 0) FROM `order` WHERE status IN ('PAID', 'PICKED')
+    </select>
+
+    <select id="countByStatus" resultType="int">
+        SELECT COUNT(*) FROM `order` WHERE status = #{status}
+    </select>
+
+    <select id="countAll" resultType="int">
+        SELECT COUNT(*) FROM `order`
+    </select>
+
+    <select id="selectSalesRanking" resultType="java.util.Map">
+        SELECT dish_name AS name, SUM(quantity) AS total
+        FROM order_item
+        GROUP BY dish_id, dish_name
+        ORDER BY total DESC
+    </select>
+
+</mapper>
